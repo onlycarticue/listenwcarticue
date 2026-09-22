@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+  --tidal-black: #000;
+  --tidal-panel: #171717;
+  --tidal-line: #292929;
+  --tidal-muted: #929292;
+  --tidal-white: #f4f4f4;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--tidal-black) !important; color: var(--tidal-white); font-family: 'DM Sans', sans-serif; }
+.app-shell { grid-template-columns: 182px minmax(0, 1fr) !important; background: #000; }
+.sidebar { position: sticky; top: 0; height: 100vh; padding: 24px 10px !important; background: #050505 !important; border-right: 1px solid #202020 !important; gap: 34px !important; }
+.brand { display: flex; align-items: center; gap: 9px; padding: 0 9px; font-size: 15px; }
+.brand span { width: 23px; height: 23px; border-radius: 5px; background: #fff; color: #000; }
+.sidebar nav { gap: 2px; }
+.sidebar nav a { border-radius: 7px; color: #8d8d8d; padding: 10px 12px; font-size: 12px; }
+.sidebar nav a.active, .sidebar nav a:hover { background: #252525; color: #fff; }
+.logout { margin: auto 9px 0; border-color: #252525; color: #999; font-size: 12px; }
+main { max-width: none !important; padding: 0 50px 130px !important; margin: 0 !important; }
+.tidal-layout { margin-top: 0 !important; }
+.tidal-topbar { height: 72px !important; }
+.search-box { width: 300px !important; height: 34px !important; border-radius: 18px; background: #1e1e1e !important; }
+.search-box input { font-size: 12px !important; }
+.profile-menu { position: relative; }
+.user-chip { border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; font-size: 12px; }
+.user-chip i { width: 28px; height: 28px; }
+.user-chip:hover i, .user-chip:focus-visible i { outline: 2px solid #9b7dff; outline-offset: 2px; }
+.profile-dropdown { position: absolute; z-index: 20; top: calc(100% + 12px); right: 0; width: 170px; padding: 8px; background: #171717; border: 1px solid #333; box-shadow: 0 16px 32px #0008; }
+.profile-label { margin: 4px 8px 8px; color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.profile-action { width: 100%; border: 0; padding: 10px 8px; background: transparent; color: #f4f4f4; text-align: left; font: inherit; font-size: 12px; cursor: pointer; }
+.profile-action:hover, .profile-action:focus-visible { background: #292929; color: #d8c9ff; outline: 0; }
+.feature-release { min-height: 250px !important; margin: 0 -50px 35px; padding: 34px 50px !important; background: linear-gradient(110deg, #151515, #272727 50%, #101010) !important; }
+.feature-release:after { background: linear-gradient(90deg, #000b, transparent 65%) !important; }
+.feature-copy h1 { font-size: 54px !important; letter-spacing: -2px !important; }
+.music-section { margin-top: 28px; }
+.tidal-shelf { margin: 4px 0 36px; }
+.hit-cards { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #555 transparent; }
+.hit-cards article { flex: 0 0 148px; }
+.hit-cards b, .hit-cards small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hit-cards b { margin-top: 9px; font-size: 12px; }
+.hit-cards small { color: #888; font-size: 10px; margin-top: 4px; }
+.hit-art { width: 148px; height: 148px; padding: 12px; display: flex; align-items: flex-end; font-size: 22px; line-height: .9; font-weight: 700; letter-spacing: -1px; }
+.hit-one { background: linear-gradient(145deg, #eee, #8b8b8b); color: #111; }
+.hit-two { background: linear-gradient(145deg, #726dc0, #dfdffd); color: #fff; }
+.hit-three { background: linear-gradient(145deg, #8000ff, #ce00aa); color: #3dff00; }
+.hit-four { background: linear-gradient(145deg, #a2a2a2, #33228f); color: #fff; }
+.hit-five { background: linear-gradient(145deg, #073b4c, #00d4b3); color: #baff00; }
+.tidal-heading { margin-bottom: 16px; }
+.tidal-heading h2 { font-size: 16px !important; margin: 3px 0 0 !important; }
+.tidal-heading > span { color: #aaa; font-size: 12px; }
+.section-kicker { color: #aaa; font-size: 10px; letter-spacing: .08em; margin: 0; }
+.tidal-cards { display: flex !important; gap: 16px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; scrollbar-color: #555 transparent; }
+.tidal-cards article { flex: 0 0 148px; position: relative; min-height: 210px; padding-bottom: 8px; }
+.tidal-cards article[data-track-name] { cursor: pointer; }
+.tidal-cards article .tidal-art { width: 148px; height: 148px; border-radius: 0 !important; margin-bottom: 9px; }
+.tidal-cards article h3 { margin: 0 0 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tidal-cards article p { margin: 0; color: #8f8f8f; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tidal-cards article button { position: absolute; right: 8px; top: 112px; width: 30px; height: 30px; border-radius: 50%; border: 0; background: #fff; color: #000; opacity: 0; transition: opacity .2s, transform .2s; cursor: pointer; }
+.tidal-cards article:hover button, .tidal-cards article button.active { opacity: 1; transform: translateY(-4px); }
+.tidal-cards article .database-cover { object-fit: cover; display: block; }
+.track-duration { display: block; margin-top: 5px; color: #777; font-size: 10px; }
+.grid-section { margin-top: 42px; padding-top: 24px; border-top: 1px solid var(--tidal-line); }
+.recent-list { border-top: 1px solid var(--tidal-line); }
+.recent-track { min-height: 58px; border-bottom: 1px solid var(--tidal-line); background: transparent; color: #fff; }
+.recent-track:hover, .recent-track.is-playing { background: #171717; }
+.focus-mix { background: #171717 !important; border-radius: 0 !important; padding: 24px !important; }
+.mini-player { background: #181818 !important; border-color: #333 !important; border-radius: 0 !important; bottom: 0 !important; width: 100% !important; }
+.mini-player__cover { background-position: center; background-size: cover; background-repeat: no-repeat; }
+@media (max-width: 760px) {
+  .app-shell { grid-template-columns: 64px minmax(0, 1fr) !important; }
+  .sidebar { padding: 20px 6px !important; }
+  .brand { justify-content: center; padding: 0; font-size: 0; }
+  .brand span { margin: 0; }
+  .sidebar nav a { font-size: 0; text-align: center; padding: 12px 4px; }
+  .sidebar nav a::first-letter { font-size: 16px; }
+  .logout { font-size: 0; padding: 10px 4px; }
+  main { padding: 0 18px 130px !important; }
+  .feature-release { margin-left: -18px; margin-right: -18px; padding-left: 24px !important; }
+  .feature-copy h1 { font-size: 40px !important; }
+  .search-box { width: 190px !important; }
+}

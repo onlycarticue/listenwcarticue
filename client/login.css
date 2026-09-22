@@ -1,0 +1,193 @@
+:root {
+  --login-black: #050505;
+  --login-panel: #111111;
+  --login-panel-soft: #181818;
+  --login-line: #2a2a2a;
+  --login-muted: #999999;
+  --login-purple: #9b7dff;
+  --login-pink: #ed72a8;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 14% 18%, rgba(115, 68, 180, 0.32), transparent 30%),
+    radial-gradient(circle at 90% 84%, rgba(29, 105, 130, 0.18), transparent 30%),
+    var(--login-black);
+  color: #f4f4f4;
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+
+.shell {
+  position: relative;
+  min-height: 100vh;
+  max-width: 1240px;
+  padding: 48px clamp(24px, 7vw, 96px);
+  gap: clamp(48px, 10vw, 150px);
+}
+
+.shell::before {
+  position: absolute;
+  right: 6%;
+  bottom: 12%;
+  width: 180px;
+  height: 180px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 0 22px rgba(255, 255, 255, 0.02), 0 0 0 44px rgba(255, 255, 255, 0.015);
+  pointer-events: none;
+}
+
+.intro {
+  position: relative;
+  z-index: 1;
+}
+
+.intro h1 {
+  max-width: 620px;
+  color: #f4f4f4;
+  font-size: clamp(3.5rem, 8vw, 6.8rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+}
+
+.intro h1 em {
+  color: #d8c9ff;
+}
+
+.eyebrow {
+  color: #aaa;
+  letter-spacing: 0.18em;
+}
+
+.intro > p:last-child,
+.subtitle,
+.switch {
+  color: var(--login-muted);
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 430px);
+  background: rgba(17, 17, 17, 0.94);
+  border: 1px solid var(--login-line);
+  border-radius: 4px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+  padding: clamp(28px, 5vw, 42px);
+  backdrop-filter: blur(16px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 42px;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.brand span {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  border-radius: 5px;
+  background: #f4f4f4;
+  color: #050505;
+}
+
+.card h2 {
+  font-size: 1.75rem;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  margin-bottom: 30px;
+}
+
+form {
+  gap: 18px;
+}
+
+label {
+  color: #c8c8c8;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+input {
+  border: 1px solid var(--login-line);
+  border-radius: 2px;
+  background: var(--login-panel-soft);
+  color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder {
+  color: #666;
+}
+
+input:focus {
+  border-color: var(--login-purple);
+  box-shadow: 0 0 0 3px rgba(155, 125, 255, 0.14);
+}
+
+.password-wrap button {
+  color: #b9a8ff;
+  font-size: 0.75rem;
+}
+
+.submit {
+  margin-top: 4px;
+  border-radius: 2px;
+  background: #f4f4f4;
+  color: #080808;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.submit:hover {
+  background: #d8c9ff;
+  color: #171027;
+  filter: none;
+  transform: translateY(-1px);
+}
+
+.switch {
+  margin-top: 28px;
+}
+
+.switch button {
+  color: #d8c9ff;
+}
+
+#message {
+  min-height: 1.2em;
+  margin: -2px 0 0;
+  color: var(--login-pink);
+}
+
+@media (max-width: 760px) {
+  .shell {
+    display: block;
+    padding: 32px 20px 48px;
+  }
+
+  .intro {
+    margin-bottom: 42px;
+  }
+
+  .intro h1 {
+    margin: 14px 0 18px;
+    font-size: clamp(3rem, 16vw, 5rem);
+  }
+
+  .card {
+    width: 100%;
+  }
+
+  .shell::before {
+    right: -70px;
+    bottom: 4%;
+  }
+}

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listenwcarticue | Admin Music</title>
+    <style>
+      :root {
+        --bg: #0f1020;
+        --panel: #171b2e;
+        --card: #1d2238;
+        --border: rgba(255,255,255,0.12);
+        --text: #eef3ff;
+        --muted: #a9b2d0;
+        --primary: #8b5cf6;
+        --primary-strong: #7c3aed;
+        --danger: #ef4444;
+        --success: #22c55e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: radial-gradient(circle at top, #221b3b 0%, var(--bg) 35%);
+        color: var(--text);
+      }
+      .layout { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+      .sidebar { background: rgba(15,16,32,0.92); border-right: 1px solid var(--border); padding: 28px 20px; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 800; margin-bottom: 32px; }
+      .brand-mark { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: linear-gradient(135deg, #d7b6ff, #8b5cf6); color: #1a102f; }
+      nav a { display: block; color: var(--muted); text-decoration: none; padding: 12px 14px; border-radius: 10px; margin-bottom: 10px; }
+      nav a.active, nav a:hover { background: rgba(255,255,255,0.06); color: white; }
+      .content { padding: 32px; }
+      .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; }
+      .topbar h1 { margin: 0; font-size: clamp(2rem, 3vw, 2.8rem); }
+      .actions { display: flex; gap: 12px; align-items: center; }
+      button { cursor: pointer; }
+      .primary-btn, .secondary-btn, .danger-btn { border: none; border-radius: 10px; padding: 11px 16px; font-weight: 700; }
+      .primary-btn { background: linear-gradient(135deg, var(--primary), var(--primary-strong)); color: white; }
+      .secondary-btn { background: rgba(255,255,255,0.08); color: var(--text); }
+      .danger-btn { background: rgba(239, 68, 68, 0.12); color: #ffb3b3; }
+      .grid { display: grid; grid-template-columns: minmax(280px, 420px) 1fr; gap: 24px; }
+      .panel { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
+      form { display: grid; gap: 14px; }
+      label { display: grid; gap: 8px; color: var(--muted); font-size: 0.88rem; }
+      input, textarea, select { width: 100%; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); border-radius: 10px; padding: 10px 12px; font: inherit; }
+      textarea { min-height: 90px; resize: vertical; }
+      .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+      th, td { padding: 12px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+      th { color: var(--muted); font-size: 0.8rem; text-transform: uppercase; }
+      .track-cover { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; background: rgba(255,255,255,0.05); }
+      .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 6px 10px; font-size: 0.78rem; font-weight: 700; }
+      .badge.featured { background: rgba(139,92,246,0.15); color: #d9c6ff; }
+      .inline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .status { margin-top: 8px; min-height: 20px; color: #c4d2ff; font-size: 0.86rem; }
+      @media (max-width: 860px) { .layout { display: block; } .sidebar { border-right: none; border-bottom: 1px solid var(--border); } .grid { grid-template-columns: 1fr; } .topbar { flex-direction: column; align-items: flex-start; gap: 10px; } }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">♪</span> Listenwcarticue</div>
+        <nav>
+          <a href="/home.html">หน้าแรก</a>
+          <a href="#" class="active">จัดการเพลง</a>
+        </nav>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <h1>Music Admin</h1>
+          <div class="actions">
+            <button type="button" class="secondary-btn" id="logout-btn">ออกจากระบบ</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <section class="panel">
+            <h2 id="form-title">เพิ่มเพลงใหม่</h2>
+            <form id="track-form">
+              <input type="hidden" id="track-id" />
+              <label>ชื่อเพลง
+                <input id="title" name="title" required placeholder="Midnight Echo" />
+              </label>
+              <label>ศิลปิน
+                <input id="artist" name="artist" required placeholder="Mira Vale" />
+              </label>
+              <div class="form-row">
+                <label>อัลบั้ม
+                  <input id="album" name="album" placeholder="Electric Afterglow" />
+                </label>
+                <label>แนวเพลง
+                  <input id="genre" name="genre" placeholder="Synthwave" />
+                </label>
+              </div>
+              <label>คำอธิบาย
+                <textarea id="description" name="description" placeholder="รายละเอียดเพลง"></textarea>
+              </label>
+              <div class="form-row">
+                <label>ความยาว (วินาที)
+                  <input id="durationSec" name="durationSec" type="number" min="1" required />
+                </label>
+                <label>Featured
+                  <select id="isFeatured" name="isFeatured">
+                    <option value="false">ไม่ featured</option>
+                    <option value="true">featured</option>
+                  </select>
+                </label>
+              </div>
+              <label>รูปปก
+                <input id="coverArt" name="coverArt" type="url" placeholder="https://example.com/cover.jpg" />
+              </label>
+              <label>ลิงก์เพลง YouTube
+                <input id="audioUrl" name="audioUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+              </label>
+              <label>หรืออัปโหลดไฟล์ MP3
+                <input id="audioFile" name="audioFile" type="file" accept="audio/mpeg,.mp3" />
+              </label>
+              <div class="inline-actions">
+                <button type="submit" class="primary-btn" id="submit-btn">บันทึกเพลง</button>
+                <button type="button" class="secondary-btn" id="reset-btn">รีเซ็ต</button>
+              </div>
+              <div id="status" class="status" aria-live="polite"></div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <h2>รายการเพลง</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>เพลง</th>
+                  <th>ศิลปิน</th>
+                  <th>เวลา</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="track-table-body"></tbody>
+            </table>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="/admin.js"></script>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listenwcarticue | หน้าแรก</title>
+    <link rel="stylesheet" href="home.css" />
+    <link rel="stylesheet" href="tidal-home.css" />
+    <link rel="stylesheet" href="tidal-reference.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/home.html"><span>♪</span> Listenwcarticue</a>
+        <nav aria-label="เมนูหลัก">
+          <a class="active" href="/home.html">หน้าแรก</a>
+          <a href="#discover">ค้นพบ</a>
+          <a href="#library">คลังเพลงของคุณ</a>
+          <a href="/admin.html" id="admin-link" class="admin-link hidden">จัดการเพลง</a>
+        </nav>
+        <button id="logout" class="logout" type="button">ออกจากระบบ</button>
+      </aside>
+      <main>
+        <header><p>ยินดีต้อนรับกลับมา</p><h1 id="welcome">กำลังโหลด…</h1></header>
+        <section class="hero"><p class="eyebrow">MADE FOR YOUR MOOD</p><h2>เริ่มฟังสิ่งที่<br /><em>ใช่สำหรับคุณ</em></h2><button type="button" data-play>เล่นเพลงแนะนำ</button></section>
+        <section id="continue-listening"><div class="section-heading"><h2>เลือกฟังต่อ</h2><a href="#library">ดูทั้งหมด</a></div><div class="albums"><article><div class="cover purple">✦</div><h3>Night drive</h3><p>สำหรับค่ำคืนของคุณ</p></article><article><div class="cover blue">◌</div><h3>Deep focus</h3><p>จังหวะเพื่อการจดจ่อ</p></article><article><div class="cover pink">♫</div><h3>Fresh finds</h3><p>เพลงใหม่ประจำสัปดาห์</p></article></div></section>
+        <section class="tidal-layout">
+          <header class="tidal-topbar">
+            <div class="search-box">⌕ <input id="discover-search" aria-label="ค้นหาเพลง ศิลปิน หรืออัลบั้ม" placeholder="ค้นหาเพลง ศิลปิน หรืออัลบั้ม" /></div>
+            <div class="profile-menu">
+              <button class="user-chip" id="profile-toggle" type="button" aria-label="เปิดเมนูบัญชี" aria-expanded="false" aria-controls="profile-dropdown"><span>Hi,</span> <b id="tidal-welcome">…</b><i>L</i></button>
+              <div class="profile-dropdown" id="profile-dropdown" hidden>
+                <p class="profile-label">บัญชีผู้ใช้</p>
+                <button class="profile-action" id="profile-logout" type="button">Logout account</button>
+              </div>
+            </div>
+          </header>
+          <section class="feature-release">
+            <div class="feature-copy"><p>LISTENWCARTICUE ORIGINALS</p><small>THE NEW ALBUM</small><h1>Electric<br />Afterglow</h1><strong>Mira Vale</strong><div><button class="solid-play" data-play data-track-name="Electric Afterglow" data-track-artist="Mira Vale" type="button">▶ Play now</button><button class="circle" data-favorite data-track-name="Electric Afterglow" data-track-artist="Mira Vale" type="button" aria-label="เพิ่มเพลงนี้ลงรายการโปรด" aria-pressed="false">♡</button><button class="circle" type="button" data-menu data-track-name="Electric Afterglow" data-track-artist="Mira Vale" aria-label="ตัวเลือกเพิ่มเติม">•••</button></div></div>
+            <div class="feature-art"><div class="glow"></div><div class="portrait"></div><b>MV</b></div>
+          </section>
+          <section class="tidal-shelf">
+            <div class="tidal-heading"><h2>THE HITS</h2><span>ดูทั้งหมด</span></div>
+            <div class="hit-cards">
+              <article><div class="hit-art hit-one">TOP<br />HITS</div><b>Today's Top Hits</b><small>LISTENWCARTICUE</small></article>
+              <article><div class="hit-art hit-two">RAP<br />HITS</div><b>Rap Hits</b><small>LISTENWCARTICUE</small></article>
+              <article><div class="hit-art hit-three">POP<br />HITS</div><b>Pop Hits</b><small>LISTENWCARTICUE</small></article>
+              <article><div class="hit-art hit-four">R&B<br />HITS</div><b>R&B Hits</b><small>LISTENWCARTICUE</small></article>
+              <article><div class="hit-art hit-five">INDIE<br />HITS</div><b>Indie Hits</b><small>LISTENWCARTICUE</small></article>
+            </div>
+          </section>
+          <section class="music-section view-section is-active" id="discover"><div class="tidal-heading"><div><p class="section-kicker">DISCOVER</p><h2>ค้นพบเพลงใหม่</h2></div><span id="discover-result-count" aria-live="polite">กำลังโหลดเพลง...</span></div><div class="tidal-cards" id="discover-cards"></div><p class="discover-empty" id="discover-empty" hidden>ไม่พบเพลงที่ตรงกับคำค้นหา</p></section>
+          <section class="music-section grid-section view-section" id="library"><div><div class="tidal-heading"><div><p class="section-kicker">YOUR LIBRARY</p><h2>คลังเพลงของคุณ</h2></div><span>Recently played</span></div><div class="recent-list"><button class="recent-track" data-play data-track-name="Cold Lights" data-track-artist="Vera Bloom"><span>01</span><i class="sq one"></i><div><b>Cold Lights</b><small>Vera Bloom</small></div><em>3:43</em></button><button class="recent-track" data-play data-track-name="Open Water" data-track-artist="Oshima"><span>02</span><i class="sq two"></i><div><b>Open Water</b><small>Oshima</small></div><em>4:08</em></button><button class="recent-track" data-play data-track-name="Slow Motion" data-track-artist="NOA"><span>03</span><i class="sq three"></i><div><b>Slow Motion</b><small>NOA</small></div><em>2:57</em></button></div></div><aside class="focus-mix"><p>YOUR DAILY MIX</p><h2>Deep focus</h2><span>Atmospheric sound for uninterrupted concentration.</span><div class="vinyl">◌</div><button data-play data-track-name="Deep focus" data-track-artist="Ambient Mix" type="button">▶ Start listening</button></aside></section>
+        </section>
+      </main>
+    </div>
+    <div class="mini-player" id="mini-player" aria-live="polite">
+      <div class="mini-player__meta">
+        <div class="mini-player__cover" id="player-track-cover">♪</div>
+        <div>
+          <strong id="player-track-name">No track selected</strong>
+          <small id="player-track-artist">Select a song to play</small>
+        </div>
+      </div>
+      <div class="mini-player__controls">
+        <button type="button" id="mini-player-toggle">▶</button>
+      </div>
+      <div class="mini-player__timeline">
+        <span id="player-current-time">0:00</span>
+        <input id="player-seek" type="range" min="0" max="1" step="0.1" value="0" aria-label="เลือกวินาทีของเพลง" />
+        <span id="player-duration">0:00</span>
+      </div>
+    </div>
+    <audio id="audio-player" preload="metadata"></audio>
+    <div id="youtube-player" class="youtube-player" aria-hidden="true"></div>
+    <script type="module" src="/home.js"></script>
+  </body>
+</html>

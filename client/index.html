@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listenwcarticue | เข้าสู่ระบบ</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro"><p class="eyebrow">LISTEN. DISCOVER. BELONG.</p><h1>ทุกจังหวะ<br><em>เป็นของคุณ</em></h1><p>เข้าสู่พื้นที่เพลงที่คัดสรรมาเพื่อคุณ</p></section>
+      <section class="card" aria-labelledby="form-title">
+        <div class="brand"><span>♪</span> Listenwcarticue</div>
+        <h2 id="form-title">ยินดีต้อนรับกลับมา</h2><p class="subtitle">เข้าสู่ระบบเพื่อฟังต่อจากที่คุณค้างไว้</p>
+        <form id="auth-form" novalidate>
+          <label class="username-field">ชื่อผู้ใช้<input id="username" type="text" autocomplete="username" placeholder="ชื่อที่แสดง" /></label>
+          <label>อีเมล<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+          <label>รหัสผ่าน<span class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="อย่างน้อย 8 ตัวอักษร" required /><button id="toggle-password" type="button" aria-label="แสดงรหัสผ่าน">แสดง</button></span></label>
+          <p id="message" role="alert" aria-live="polite"></p>
+          <button id="submit" class="submit" type="submit">เข้าสู่ระบบ</button>
+        </form>
+        <p class="switch">ยังไม่มีบัญชี? <button id="mode-toggle" type="button">สมัครสมาชิก</button></p>
+      </section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

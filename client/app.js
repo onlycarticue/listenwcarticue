@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/auth";
+const API_URL = import.meta.env.VITE_API_URL || "/api/auth";
 const form = document.querySelector("#auth-form");
 const title = document.querySelector("#form-title");
 const subtitle = document.querySelector(".subtitle");

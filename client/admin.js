@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { upload } from '@vercel/blob/client';
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 const token = localStorage.getItem('auth_token');
 
 const form = document.querySelector('#track-form');
@@ -172,15 +174,21 @@ const submitTrack = async (event) => {
 
     const selectedAudio = fields.audioFile.files[0];
     if (selectedAudio) {
-      const audioForm = new FormData();
-      audioForm.append('audio', selectedAudio);
-      const uploadResponse = await fetch(`${API_URL}/tracks/${result._id}/audio`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: audioForm,
+      const blob = await upload(`audio/${selectedAudio.name}`, selectedAudio, {
+        access: 'public',
+        handleUploadUrl: `${API_URL}/blob/upload`,
+        clientPayload: JSON.stringify({ trackId: result._id }),
       });
-      const uploadResult = await uploadResponse.json();
-      if (!uploadResponse.ok) throw new Error(uploadResult.message || 'อัปโหลดไฟล์ MP3 ไม่สำเร็จ');
+      const audioResponse = await fetch(`${API_URL}/tracks/${result._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ audioUrl: blob.url }),
+      });
+      const audioResult = await audioResponse.json();
+      if (!audioResponse.ok) throw new Error(audioResult.message || 'บันทึก URL ไฟล์ MP3 ไม่สำเร็จ');
     }
 
     setStatus(selectedAudio ? 'บันทึกเพลงและอัปโหลด MP3 เรียบร้อยแล้ว' : (isEditing ? 'อัปเดตเพลงเรียบร้อยแล้ว' : 'เพิ่มเพลงเรียบร้อยแล้ว'), 'success');

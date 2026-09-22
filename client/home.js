@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api/auth";
+const API_URL = import.meta.env.VITE_API_URL || "/api/auth";
 const TRACKS_API_URL = API_URL.replace(/\/auth\/?$/, "");
 const token = localStorage.getItem("auth_token");
 const logoutButton = document.querySelector("#logout");

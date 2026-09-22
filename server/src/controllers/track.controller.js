@@ -1,4 +1,5 @@
 const Track = require("../models/track.model");
+const { put } = require("@vercel/blob");
 
 const getTracks = async (req, res, next) => {
   try {
@@ -104,7 +105,12 @@ const uploadAudio = async (req, res, next) => {
       return res.status(404).json({ message: "Track not found" });
     }
 
-    track.audioUrl = `/uploads/audio/${req.file.filename}`;
+    const blob = await put(`audio/${req.file.originalname}`, req.file.buffer, {
+      access: "public",
+      contentType: req.file.mimetype,
+      addRandomSuffix: true,
+    });
+    track.audioUrl = blob.url;
     await track.save();
     res.json(track);
   } catch (error) {

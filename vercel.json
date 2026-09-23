@@ -6,6 +6,14 @@
     {
       "source": "/api/:path*",
       "destination": "/api/index.js"
+    },
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/auth.html"
     }
   ]
 }

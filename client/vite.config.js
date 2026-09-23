@@ -12,7 +12,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        login: fileURLToPath(new URL("./index.html", import.meta.url)),
+        login: fileURLToPath(new URL("./auth.html", import.meta.url)),
         home: fileURLToPath(new URL("./home.html", import.meta.url)),
         admin: fileURLToPath(new URL("./admin.html", import.meta.url)),
       },

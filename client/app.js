@@ -51,6 +51,10 @@ modeToggle.addEventListener("click", () => {
   message.textContent = "";
 });
 
+if (new URLSearchParams(window.location.search).get("mode") === "register") {
+  modeToggle.click();
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   message.textContent = "";

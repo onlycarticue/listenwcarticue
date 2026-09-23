@@ -754,7 +754,10 @@ const attachAuthHandlers = () => {
 };
 
 if (!token) {
-  goToLogin();
+  if (welcomeElement) welcomeElement.textContent = "เลือกเพลงที่ใช่สำหรับคุณ";
+  if (tidalWelcomeElement) tidalWelcomeElement.textContent = "Guest";
+  if (logoutButton) logoutButton.textContent = "เข้าสู่ระบบ";
+  if (profileLogoutButton) profileLogoutButton.textContent = "เข้าสู่ระบบ";
 } else {
   fetch(`${API_URL}/me`, { headers: { Authorization: `Bearer ${token}` } })
     .then(async (response) => {

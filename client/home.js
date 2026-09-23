@@ -27,7 +27,7 @@ const youtubePlayerHost = document.querySelector("#youtube-player");
 const audioPlayer = document.querySelector("#audio-player");
 const SERVER_URL = TRACKS_API_URL.replace(/\/api\/?$/, "");
 
-const goToLogin = () => window.location.replace("/");
+const goToLogin = () => window.location.replace("/login");
 
 const logout = () => {
   stopCurrentAudio();

@@ -25,6 +25,7 @@ const discoverEmpty = document.querySelector("#discover-empty");
 const discoverCards = document.querySelector("#discover-cards");
 const spotifyAlbums = document.querySelector("#spotify-albums");
 const spotifyCatalogStatus = document.querySelector("#spotify-catalog-status");
+const spotifyPlayerStatus = document.querySelector("#spotify-player-status");
 const spotifyArtistFallback = document.querySelector("#spotify-artist-fallback");
 const youtubePlayerHost = document.querySelector("#youtube-player");
 const audioPlayer = document.querySelector("#audio-player");
@@ -305,7 +306,9 @@ const initializeSpotifyEmbeds = async () => {
     if (!playerState.spotifyIframeApiPromise) {
       playerState.spotifyIframeApiPromise = new Promise((resolve, reject) => {
         const previousCallback = window.onSpotifyIframeApiReady;
+        const timeoutId = window.setTimeout(() => reject(new Error("Spotify iFrame API ไม่ตอบกลับ")), 15000);
         window.onSpotifyIframeApiReady = (api) => {
+          window.clearTimeout(timeoutId);
           previousCallback?.(api);
           resolve(api);
         };
@@ -323,18 +326,24 @@ const initializeSpotifyEmbeds = async () => {
       if (!url) return;
       host.dataset.spotifyReady = "true";
       iframeApi.createController(host, { url, width: "100%", height: 352 }, (controller) => {
+        if (spotifyPlayerStatus) spotifyPlayerStatus.textContent = "เชื่อมต่อ Spotify Player แล้ว · เล่นเพลงในตัวเล่นเพื่อซิงก์แถบด้านล่าง";
         controller.addListener("playback_started", (event) => {
           if (playerState.spotifyIgnoreController === controller) playerState.spotifyIgnoreController = null;
+          if (spotifyPlayerStatus) spotifyPlayerStatus.textContent = "ได้รับข้อมูลเพลงจาก Spotify แล้ว";
           syncSpotifyPlayback(controller, { ...event.data, isPaused: false });
         });
         controller.addListener("playback_update", (event) => {
           if (playerState.spotifyIgnoreController === controller && event.data.isPaused) return;
           if (playerState.spotifyIgnoreController === controller) playerState.spotifyIgnoreController = null;
+          if (event.data.playingURI && event.data.playingURI.startsWith("spotify:track:") && spotifyPlayerStatus) {
+            spotifyPlayerStatus.textContent = "กำลังซิงก์เพลงและเวลาจาก Spotify";
+          }
           syncSpotifyPlayback(controller, event.data);
         });
       });
     });
   } catch (error) {
+    if (spotifyPlayerStatus) spotifyPlayerStatus.textContent = `${error.message} · ใช้ iframe อย่างเดียวจึงไม่ซิงก์ข้อมูลไปยังแถบด้านล่าง`;
     hosts.forEach((host) => {
       const url = host.dataset.spotifyUrl;
       if (!url) return;

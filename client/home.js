@@ -23,6 +23,11 @@ const discoverSection = document.querySelector("#discover");
 const discoverResultCount = document.querySelector("#discover-result-count");
 const discoverEmpty = document.querySelector("#discover-empty");
 const discoverCards = document.querySelector("#discover-cards");
+const spotifyFeaturedTracksHost = document.querySelector("#spotify-featured-tracks");
+const libraryTracksHost = document.querySelector("#library-tracks");
+const libraryEmpty = document.querySelector("#library-empty");
+const libraryCount = document.querySelector("#library-count");
+const libraryDiscoverButton = document.querySelector("#library-discover-button");
 const spotifyAlbums = document.querySelector("#spotify-albums");
 const spotifyCatalogStatus = document.querySelector("#spotify-catalog-status");
 const spotifyPlayerStatus = document.querySelector("#spotify-player-status");
@@ -82,6 +87,35 @@ const trackDurations = {
 };
 
 let databaseTracks = [];
+const curatedSpotifyTracks = [
+  { spotifyId: "4Fx4IBQOq3WlgjGsamqcD0", title: "Sunset In Pattaya", artist: "YOUNGOHM", durationSec: 209 },
+  { spotifyId: "3xyNRloMm2i6sNAlnnxLFA", title: "เจิดจรัส", artist: "YOUNGOHM", durationSec: 261 },
+  { spotifyId: "75mFrseCKSI6Nz8WANXq90", title: "ใจฉันตามเธอไป", artist: "YOUNGOHM", durationSec: 264 },
+  { spotifyId: "2wyjOiDh07ISNq0oq69G4e", title: "นครดารา", artist: "YOUNGOHM", durationSec: 196 },
+  { spotifyId: "4ZU069vAYkr7soRzdzNdjF", title: "ไฟเย็น", artist: "YOUNGOHM", durationSec: 285 },
+];
+
+const getLibraryStorageKey = () => {
+  let userKey = "guest";
+  try {
+    const user = JSON.parse(localStorage.getItem("auth_user") || "{}");
+    userKey = user.id || user._id || user.username || userKey;
+  } catch (error) {
+    // Use the guest library if the cached profile is invalid.
+  }
+  return `listenwcarticue:spotify-library:${userKey}`;
+};
+
+const readLocalLibrary = () => {
+  try {
+    const saved = JSON.parse(localStorage.getItem(getLibraryStorageKey()) || "[]");
+    return Array.isArray(saved) ? saved : [];
+  } catch (error) {
+    return [];
+  }
+};
+
+let spotifyLibraryTracks = readLocalLibrary();
 
 const formatTime = (seconds) => {
   const safeSeconds = Math.max(0, Math.floor(seconds || 0));
@@ -174,8 +208,8 @@ const renderDatabaseTracks = (tracks) => {
   }).join("");
 
   databaseTracks = tracks;
-  if (discoverResultCount) discoverResultCount.textContent = `${tracks.length} เพลงจากฐานข้อมูล`;
-  if (discoverEmpty) discoverEmpty.hidden = tracks.length !== 0;
+  if (discoverResultCount) discoverResultCount.textContent = `${tracks.length + curatedSpotifyTracks.length} เพลง`;
+  if (discoverEmpty) discoverEmpty.hidden = tracks.length + curatedSpotifyTracks.length !== 0;
   discoverCards.querySelectorAll("[data-play]").forEach((button) => {
     button.addEventListener("click", () => togglePlayback(button));
   });
@@ -194,6 +228,106 @@ const renderDatabaseTracks = (tracks) => {
   });
 };
 
+const renderSpotifyFeaturedTracks = () => {
+  if (!spotifyFeaturedTracksHost) return;
+
+  spotifyFeaturedTracksHost.innerHTML = curatedSpotifyTracks.map((track) => {
+    const isSaved = spotifyLibraryTracks.some((saved) => saved.spotifyId === track.spotifyId);
+    const embedUrl = `https://open.spotify.com/embed/track/${track.spotifyId}?utm_source=generator`;
+    return `<article class="spotify-featured-card" data-track-name="${escapeHtml(track.title)}" data-track-artist="${escapeHtml(track.artist)}"><h3>${escapeHtml(track.title)}</h3><p>${escapeHtml(track.artist)}</p><iframe title="${escapeHtml(track.title)} โดย ${escapeHtml(track.artist)} บน Spotify" src="${embedUrl}" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe><button class="library-action" type="button" data-library-add="${track.spotifyId}" aria-pressed="${isSaved}" ${isSaved ? "disabled" : ""}>${isSaved ? "✓ อยู่ในคลังแล้ว" : "+ เพิ่มเข้าคลังเพลง"}</button></article>`;
+  }).join("");
+
+  spotifyFeaturedTracksHost.querySelectorAll("[data-library-add]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const track = curatedSpotifyTracks.find((item) => item.spotifyId === button.dataset.libraryAdd);
+      if (track) addSpotifyTrackToLibrary(track);
+    });
+  });
+};
+
+const renderSpotifyLibrary = () => {
+  if (!libraryTracksHost) return;
+  const tracks = Array.isArray(spotifyLibraryTracks) ? spotifyLibraryTracks : [];
+  if (libraryEmpty) libraryEmpty.hidden = tracks.length > 0;
+  if (libraryCount) libraryCount.textContent = `${tracks.length} เพลง`;
+
+  libraryTracksHost.innerHTML = tracks.map((track) => {
+    const embedUrl = `https://open.spotify.com/embed/track/${encodeURIComponent(track.spotifyId)}?utm_source=generator`;
+    return `<article class="spotify-library-card"><h3>${escapeHtml(track.title)}</h3><p>${escapeHtml(track.artist)}</p><iframe title="${escapeHtml(track.title)} โดย ${escapeHtml(track.artist)} บน Spotify" src="${embedUrl}" height="152" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe><button class="library-action" type="button" data-library-remove="${escapeHtml(track.spotifyId)}">นำออกจากคลัง</button></article>`;
+  }).join("");
+
+  libraryTracksHost.querySelectorAll("[data-library-remove]").forEach((button) => {
+    button.addEventListener("click", () => removeSpotifyTrackFromLibrary(button.dataset.libraryRemove));
+  });
+  renderSpotifyFeaturedTracks();
+};
+
+const saveLocalSpotifyLibrary = () => {
+  localStorage.setItem(getLibraryStorageKey(), JSON.stringify(spotifyLibraryTracks));
+};
+
+const addSpotifyTrackToLibrary = async (track) => {
+  if (spotifyLibraryTracks.some((saved) => saved.spotifyId === track.spotifyId)) return;
+
+  try {
+    if (token) {
+      const response = await fetch(`${TRACKS_API_URL}/spotify/library`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(track),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "เพิ่มเพลงเข้าคลังไม่สำเร็จ");
+      spotifyLibraryTracks = data.library || [];
+    } else {
+      spotifyLibraryTracks = [...spotifyLibraryTracks, track];
+      saveLocalSpotifyLibrary();
+    }
+    renderSpotifyLibrary();
+    setToast(`เพิ่ม ${track.title} เข้าคลังเพลงแล้ว`);
+  } catch (error) {
+    setToast(error.message);
+  }
+};
+
+const removeSpotifyTrackFromLibrary = async (spotifyId) => {
+  try {
+    if (token) {
+      const response = await fetch(`${TRACKS_API_URL}/spotify/library/${encodeURIComponent(spotifyId)}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "นำเพลงออกจากคลังไม่สำเร็จ");
+      spotifyLibraryTracks = data.library || [];
+    } else {
+      spotifyLibraryTracks = spotifyLibraryTracks.filter((track) => track.spotifyId !== spotifyId);
+      saveLocalSpotifyLibrary();
+    }
+    renderSpotifyLibrary();
+    setToast("นำเพลงออกจากคลังแล้ว");
+  } catch (error) {
+    setToast(error.message);
+  }
+};
+
+const loadSpotifyLibrary = async () => {
+  if (token) {
+    try {
+      const response = await fetch(`${TRACKS_API_URL}/spotify/library`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("โหลดคลังเพลงจากบัญชีไม่สำเร็จ");
+      const data = await response.json();
+      spotifyLibraryTracks = Array.isArray(data.library) ? data.library : [];
+      saveLocalSpotifyLibrary();
+    } catch (error) {
+      setToast(error.message);
+    }
+  }
+  renderSpotifyLibrary();
+};
+
 const loadDatabaseTracks = async () => {
   try {
     const response = await fetch(`${TRACKS_API_URL}/tracks`);
@@ -201,11 +335,8 @@ const loadDatabaseTracks = async () => {
     const tracks = await response.json();
     renderDatabaseTracks(Array.isArray(tracks) ? tracks : []);
   } catch (error) {
-    if (discoverResultCount) discoverResultCount.textContent = "โหลดเพลงไม่สำเร็จ";
-    if (discoverEmpty) {
-      discoverEmpty.hidden = false;
-      discoverEmpty.textContent = "ไม่สามารถเชื่อมต่อฐานข้อมูลเพลงได้";
-    }
+    if (discoverResultCount) discoverResultCount.textContent = `${curatedSpotifyTracks.length} เพลงแนะนำ`;
+    if (discoverEmpty) discoverEmpty.hidden = true;
     setToast(error.message);
   }
 };
@@ -734,7 +865,7 @@ const seekPlayback = (event) => {
 
 const handleSearch = (event) => {
   const query = event.target.value.trim().toLowerCase();
-  const visibleCards = document.querySelectorAll("#discover .tidal-cards article");
+  const visibleCards = document.querySelectorAll("#discover .tidal-cards article, #spotify-featured-tracks article");
   let visibleCount = 0;
 
   visibleCards.forEach((element) => {
@@ -744,7 +875,7 @@ const handleSearch = (event) => {
     if (isMatch) visibleCount += 1;
   });
 
-  if (discoverResultCount) discoverResultCount.textContent = query ? `พบ ${visibleCount} เพลง` : `${databaseTracks.length} เพลงจากฐานข้อมูล`;
+  if (discoverResultCount) discoverResultCount.textContent = query ? `พบ ${visibleCount} เพลง` : `${databaseTracks.length + curatedSpotifyTracks.length} เพลง`;
   if (discoverEmpty) discoverEmpty.hidden = visibleCount !== 0;
 };
 
@@ -760,11 +891,18 @@ const attachNavigationHandlers = () => {
       document.querySelectorAll('.sidebar nav a[href^="#"]').forEach((navLink) => {
         navLink.classList.toggle("active", navLink === link);
       });
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      const scrollTarget = target === discoverSection
+        ? document.querySelector(".tidal-layout") || target
+        : target;
+      scrollTarget.scrollIntoView({ behavior: "smooth", block: "start" });
       if (target === discoverSection && searchInput) {
         window.setTimeout(() => searchInput.focus(), 350);
       }
     });
+  });
+
+  libraryDiscoverButton?.addEventListener("click", () => {
+    document.querySelector('.sidebar nav a[href="#discover"]')?.click();
   });
 };
 
@@ -1007,6 +1145,9 @@ attachFavoriteHandlers();
 attachAuthHandlers();
 attachNavigationHandlers();
 initPlayerStyles();
+renderSpotifyFeaturedTracks();
+renderSpotifyLibrary();
+loadSpotifyLibrary();
 loadDatabaseTracks();
 loadSpotifyAlbums();
 initializeSpotifyEmbeds();

@@ -107,4 +107,67 @@ const getTrackEmbedMetadata = async (req, res, next) => {
   }
 };
 
-module.exports = { getArtistAlbums, getTrackEmbedMetadata };
+const getSpotifyLibrary = async (req, res, next) => {
+  try {
+    const User = require("../models/user.model");
+    const user = await User.findById(req.userId).select("spotifyLibrary");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ library: user.spotifyLibrary || [] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addTrackToSpotifyLibrary = async (req, res, next) => {
+  try {
+    const User = require("../models/user.model");
+    const { spotifyId, title, artist, durationSec, coverArt } = req.body;
+    if (!/^[A-Za-z0-9]{22}$/.test(String(spotifyId || "")) || !title || !artist) {
+      return res.status(400).json({ message: "Valid Spotify track ID, title and artist are required" });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user.spotifyLibrary.some((track) => track.spotifyId === spotifyId)) {
+      user.spotifyLibrary.push({
+        spotifyId,
+        title: String(title).trim().slice(0, 200),
+        artist: String(artist).trim().slice(0, 200),
+        durationSec: Math.max(0, Number(durationSec) || 0),
+        coverArt: typeof coverArt === "string" ? coverArt.slice(0, 1000) : "",
+        spotifyUrl: `https://open.spotify.com/track/${spotifyId}`,
+      });
+      await user.save();
+    }
+
+    res.json({ library: user.spotifyLibrary });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const removeTrackFromSpotifyLibrary = async (req, res, next) => {
+  try {
+    const User = require("../models/user.model");
+    if (!/^[A-Za-z0-9]{22}$/.test(req.params.id)) {
+      return res.status(400).json({ message: "Invalid Spotify track ID" });
+    }
+    const user = await User.findByIdAndUpdate(
+      req.userId,
+      { $pull: { spotifyLibrary: { spotifyId: req.params.id } } },
+      { new: true }
+    ).select("spotifyLibrary");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ library: user.spotifyLibrary || [] });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  getArtistAlbums,
+  getTrackEmbedMetadata,
+  getSpotifyLibrary,
+  addTrackToSpotifyLibrary,
+  removeTrackFromSpotifyLibrary,
+};

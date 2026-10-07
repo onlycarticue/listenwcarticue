@@ -12,7 +12,15 @@ const userSchema = new mongoose.Schema(
     },
     avatarUrl: { type: String, default: '' },
     followedArtists: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    likedSongs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }]
+    likedSongs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Song' }],
+    spotifyLibrary: [{
+      spotifyId: { type: String, required: true },
+      title: { type: String, required: true },
+      artist: { type: String, required: true },
+      durationSec: { type: Number, default: 0 },
+      coverArt: { type: String, default: '' },
+      spotifyUrl: { type: String, required: true },
+    }],
   },
   { timestamps: true }
 );

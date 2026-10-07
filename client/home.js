@@ -57,6 +57,15 @@ const playerState = {
   youtubeReadyPromise: null,
   htmlAudio: null,
   playbackRequestId: 0,
+  spotifyIframeApiPromise: null,
+  spotifyController: null,
+  spotifyIgnoreController: null,
+  spotifyIsActive: false,
+  spotifyUri: "",
+  spotifyMetadataUri: "",
+  spotifySyncPosition: 0,
+  spotifySyncAt: 0,
+  spotifyMetadataRequestId: 0,
 };
 
 const trackDurations = {
@@ -200,6 +209,151 @@ const loadDatabaseTracks = async () => {
   }
 };
 
+const updateSpotifyTrackMetadata = async (uri) => {
+  const trackId = String(uri || "").match(/^spotify:track:([A-Za-z0-9]{22})$/)?.[1];
+  if (!trackId || playerState.spotifyMetadataUri === uri) return;
+
+  playerState.spotifyMetadataUri = uri;
+  playerState.spotifyUri = uri;
+  const requestId = ++playerState.spotifyMetadataRequestId;
+  playerState.currentTrack = {
+    title: "กำลังโหลดชื่อเพลง...",
+    artist: "YOUNGOHM · Spotify",
+    durationSec: playerState.duration,
+    audioUrl: "",
+    coverArt: "",
+  };
+  updateMiniPlayer(playerState.currentTrack);
+
+  try {
+    const response = await fetch(`${TRACKS_API_URL}/spotify/embed-track/${trackId}`);
+    if (!response.ok) throw new Error("Spotify track metadata unavailable");
+    const metadata = await response.json();
+    if (requestId !== playerState.spotifyMetadataRequestId || playerState.spotifyUri !== uri) return;
+
+    playerState.currentTrack = {
+      ...playerState.currentTrack,
+      title: metadata.title || "กำลังเล่นจาก Spotify",
+      artist: metadata.artist || "YOUNGOHM",
+      coverArt: metadata.coverArt || "",
+      durationSec: playerState.duration || playerState.currentTrack.durationSec,
+    };
+    updateMiniPlayer(playerState.currentTrack);
+  } catch (error) {
+    if (requestId === playerState.spotifyMetadataRequestId) {
+      playerState.currentTrack.title = "กำลังเล่นจาก Spotify";
+      updateMiniPlayer(playerState.currentTrack);
+    }
+  }
+};
+
+const syncSpotifyPlayback = (controller, playback = {}) => {
+  const uri = playback.playingURI || playerState.spotifyUri;
+  if (!uri || !uri.startsWith("spotify:track:")) return;
+
+  const isNewTrack = uri !== playerState.spotifyUri;
+  if (!playerState.spotifyIsActive) {
+    if (playerState.htmlAudio) playerState.htmlAudio.pause();
+    if (playerState.youtubePlayer?.pauseVideo) playerState.youtubePlayer.pauseVideo();
+    if (playerState.oscillator) {
+      try { playerState.oscillator.stop(); } catch (error) { /* already stopped */ }
+      playerState.oscillator.disconnect();
+      playerState.oscillator = null;
+    }
+    if (playerState.gainNode) {
+      playerState.gainNode.disconnect();
+      playerState.gainNode = null;
+    }
+  }
+
+  playerState.spotifyController = controller;
+  playerState.spotifyIsActive = true;
+  playerState.spotifyUri = uri;
+  if (isNewTrack) playerState.spotifySyncPosition = 0;
+  if (Number.isFinite(Number(playback.position))) {
+    playerState.spotifySyncPosition = Math.max(0, Number(playback.position) / 1000);
+  }
+  const eventDuration = Number(playback.duration) / 1000;
+  if (Number.isFinite(eventDuration) && eventDuration > 0) playerState.duration = eventDuration;
+  playerState.currentTime = playerState.spotifySyncPosition;
+  playerState.spotifySyncAt = performance.now();
+  playerState.isPlaying = !playback.isPaused && !playback.isBuffering;
+
+  if (!playerState.currentTrack || isNewTrack) {
+    playerState.currentTrack = {
+      title: "กำลังโหลดชื่อเพลง...",
+      artist: "YOUNGOHM · Spotify",
+      durationSec: playerState.duration,
+      audioUrl: "",
+      coverArt: "",
+    };
+    updateSpotifyTrackMetadata(uri);
+  } else if (playerState.duration) {
+    playerState.currentTrack.durationSec = playerState.duration;
+  }
+
+  if (!playerState.timerId) playerState.timerId = window.setInterval(updateProgress, 250);
+  updateMiniPlayer(playerState.currentTrack);
+  syncPlayUI(playerState.currentTrack.title);
+};
+
+const initializeSpotifyEmbeds = async () => {
+  const hosts = [...document.querySelectorAll(".spotify-embed-host:not([data-spotify-ready])")];
+  if (!hosts.length) return;
+
+  try {
+    if (!playerState.spotifyIframeApiPromise) {
+      playerState.spotifyIframeApiPromise = new Promise((resolve, reject) => {
+        const previousCallback = window.onSpotifyIframeApiReady;
+        window.onSpotifyIframeApiReady = (api) => {
+          previousCallback?.(api);
+          resolve(api);
+        };
+        const script = document.createElement("script");
+        script.src = "https://open.spotify.com/embed/iframe-api/v1";
+        script.async = true;
+        script.onerror = () => reject(new Error("โหลด Spotify Player API ไม่สำเร็จ"));
+        document.head.appendChild(script);
+      });
+    }
+
+    const iframeApi = await playerState.spotifyIframeApiPromise;
+    hosts.forEach((host) => {
+      const url = host.dataset.spotifyUrl;
+      if (!url) return;
+      host.dataset.spotifyReady = "true";
+      iframeApi.createController(host, { url, width: "100%", height: 352 }, (controller) => {
+        controller.addListener("playback_started", (event) => {
+          if (playerState.spotifyIgnoreController === controller) playerState.spotifyIgnoreController = null;
+          syncSpotifyPlayback(controller, { ...event.data, isPaused: false });
+        });
+        controller.addListener("playback_update", (event) => {
+          if (playerState.spotifyIgnoreController === controller && event.data.isPaused) return;
+          if (playerState.spotifyIgnoreController === controller) playerState.spotifyIgnoreController = null;
+          syncSpotifyPlayback(controller, event.data);
+        });
+      });
+    });
+  } catch (error) {
+    hosts.forEach((host) => {
+      const url = host.dataset.spotifyUrl;
+      if (!url) return;
+      const iframe = document.createElement("iframe");
+      iframe.title = "Spotify Player";
+      const embedUrl = new URL(url);
+      if (!embedUrl.pathname.startsWith("/embed/")) embedUrl.pathname = `/embed${embedUrl.pathname}`;
+      embedUrl.searchParams.set("utm_source", "generator");
+      iframe.src = embedUrl.toString();
+      iframe.width = "100%";
+      iframe.height = "352";
+      iframe.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      iframe.loading = "lazy";
+      iframe.frameBorder = "0";
+      host.replaceChildren(iframe);
+    });
+  }
+};
+
 const loadSpotifyAlbums = async () => {
   if (!spotifyAlbums) return;
 
@@ -214,7 +368,7 @@ const loadSpotifyAlbums = async () => {
       const spotifyLink = album.spotifyUrl || `https://open.spotify.com/album/${encodeURIComponent(album.id)}`;
       const year = String(album.releaseDate || "").slice(0, 4);
       const type = album.albumType === "single" ? "Single / EP" : "Album";
-      return `<article class="spotify-album-card"><div class="spotify-album-heading"><h3><a href="${escapeHtml(spotifyLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(album.name)} ↗</a></h3><p>${escapeHtml([year, type, `${Number(album.totalTracks) || 0} เพลง`].filter(Boolean).join(" · "))}</p></div><iframe title="${escapeHtml(album.name)} โดย YOUNGOHM บน Spotify" src="${albumUrl}" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></article>`;
+      return `<article class="spotify-album-card"><div class="spotify-album-heading"><h3><a href="${escapeHtml(spotifyLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(album.name)} ↗</a></h3><p>${escapeHtml([year, type, `${Number(album.totalTracks) || 0} เพลง`].filter(Boolean).join(" · "))}</p></div><div class="spotify-embed-host" data-spotify-url="${escapeHtml(albumUrl)}"></div></article>`;
     }).join("");
 
     if (spotifyCatalogStatus) {
@@ -223,6 +377,7 @@ const loadSpotifyAlbums = async () => {
         : "ไม่พบอัลบั้มใน Spotify สำหรับประเทศที่ตั้งค่าไว้";
     }
     if (spotifyArtistFallback && albums.length) spotifyArtistFallback.hidden = true;
+    initializeSpotifyEmbeds();
   } catch (error) {
     if (spotifyCatalogStatus) {
       spotifyCatalogStatus.textContent = error.message.includes("SPOTIFY_CLIENT_ID")
@@ -248,6 +403,14 @@ const setAdminLinkVisibility = (role) => {
 };
 
 const stopCurrentAudio = () => {
+  if (playerState.spotifyIsActive && playerState.spotifyController?.pause) {
+    playerState.spotifyIgnoreController = playerState.spotifyController;
+    playerState.spotifyController.pause();
+  }
+  playerState.spotifyIsActive = false;
+  playerState.spotifyMetadataRequestId += 1;
+  playerState.spotifyUri = "";
+  playerState.spotifyMetadataUri = "";
   if (playerState.oscillator) {
     try {
       playerState.oscillator.stop();
@@ -273,7 +436,12 @@ const stopCurrentAudio = () => {
 };
 
 const updateProgress = () => {
-  if (playerState.isPlaying) {
+  if (playerState.spotifyIsActive) {
+    const elapsed = playerState.isPlaying
+      ? (performance.now() - playerState.spotifySyncAt) / 1000
+      : 0;
+    playerState.currentTime = Math.min(playerState.duration, playerState.spotifySyncPosition + elapsed);
+  } else if (playerState.isPlaying) {
     if (playerState.htmlAudio && playerState.currentTrack?.audioUrl && !getYouTubeId(playerState.currentTrack.audioUrl)) {
       playerState.currentTime = playerState.htmlAudio.currentTime;
       playerState.duration = playerState.htmlAudio.duration || playerState.duration;
@@ -540,7 +708,11 @@ const seekPlayback = (event) => {
   const nextTime = Number(event.target.value);
   playerState.currentTime = nextTime;
 
-  if (playerState.htmlAudio && !getYouTubeId(playerState.currentTrack.audioUrl)) {
+  if (playerState.spotifyIsActive && playerState.spotifyController?.seek) {
+    playerState.spotifyController.seek(nextTime);
+    playerState.spotifySyncPosition = nextTime;
+    playerState.spotifySyncAt = performance.now();
+  } else if (playerState.htmlAudio && !getYouTubeId(playerState.currentTrack.audioUrl)) {
     playerState.htmlAudio.currentTime = nextTime;
   } else if (playerState.youtubePlayer?.seekTo && getYouTubeId(playerState.currentTrack.audioUrl)) {
     playerState.youtubePlayer.seekTo(nextTime, true);
@@ -613,6 +785,11 @@ const attachPlayHandlers = () => {
     miniPlayerToggle.addEventListener("click", () => {
       if (!playerState.currentTrack) {
         setToast("เลือกเพลงก่อนเพื่อเล่น");
+        return;
+      }
+
+      if (playerState.spotifyIsActive && playerState.spotifyController?.togglePlay) {
+        playerState.spotifyController.togglePlay();
         return;
       }
 
@@ -823,6 +1000,7 @@ attachNavigationHandlers();
 initPlayerStyles();
 loadDatabaseTracks();
 loadSpotifyAlbums();
+initializeSpotifyEmbeds();
 
 window.addEventListener("beforeunload", () => {
   stopCurrentAudio();

@@ -83,4 +83,28 @@ const getArtistAlbums = async (req, res, next) => {
   }
 };
 
-module.exports = { getArtistAlbums };
+const getTrackEmbedMetadata = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!/^[A-Za-z0-9]{22}$/.test(id)) {
+      return res.status(400).json({ message: "Invalid Spotify track ID" });
+    }
+
+    const url = new URL("https://open.spotify.com/oembed");
+    url.searchParams.set("url", `https://open.spotify.com/track/${id}`);
+    const response = await fetch(url);
+    if (!response.ok) {
+      const error = new Error("Spotify โหลดข้อมูลเพลงที่กำลังเล่นไม่สำเร็จ");
+      error.status = response.status === 404 ? 404 : 502;
+      throw error;
+    }
+
+    const data = await response.json();
+    res.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
+    res.json({ title: data.title, artist: data.author_name, coverArt: data.thumbnail_url || "" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getArtistAlbums, getTrackEmbedMetadata };

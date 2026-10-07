@@ -7,6 +7,12 @@
     <link rel="stylesheet" href="home.css" />
     <link rel="stylesheet" href="tidal-home.css" />
     <link rel="stylesheet" href="tidal-reference.css" />
+    <style>
+      .spotify-track-embed { display: block; max-width: 100%; border: 0; border-radius: 10px; }
+      .spotify-library-track { padding: 12px 0; border-bottom: 1px solid #282828; }
+      .spotify-library-track h3 { margin: 0 0 8px; font-size: 13px; }
+      .focus-track-embed { position: relative; z-index: 2; margin-top: 18px; }
+    </style>
   </head>
   <body>
     <div class="app-shell">
@@ -22,7 +28,7 @@
       </aside>
       <main>
         <header><p>ยินดีต้อนรับกลับมา</p><h1 id="welcome">กำลังโหลด…</h1></header>
-        <section class="hero"><p class="eyebrow">MADE FOR YOUR MOOD</p><h2>เริ่มฟังสิ่งที่<br /><em>ใช่สำหรับคุณ</em></h2><button type="button" data-play>เล่นเพลงแนะนำ</button></section>
+        <section class="hero"><p class="eyebrow">MADE FOR YOUR MOOD</p><h2>เริ่มฟังสิ่งที่<br /><em>ใช่สำหรับคุณ</em></h2><a href="https://open.spotify.com/track/4Fx4IBQOq3WlgjGsamqcD0" target="_blank" rel="noopener noreferrer">ฟัง Sunset In Pattaya บน Spotify</a></section>
         <section id="continue-listening"><div class="section-heading"><h2>เลือกฟังต่อ</h2><a href="#library">ดูทั้งหมด</a></div><div class="albums"><article><div class="cover purple">✦</div><h3>Night drive</h3><p>สำหรับค่ำคืนของคุณ</p></article><article><div class="cover blue">◌</div><h3>Deep focus</h3><p>จังหวะเพื่อการจดจ่อ</p></article><article><div class="cover pink">♫</div><h3>Fresh finds</h3><p>เพลงใหม่ประจำสัปดาห์</p></article></div></section>
         <section class="tidal-layout">
           <header class="tidal-topbar">
@@ -36,7 +42,7 @@
             </div>
           </header>
           <section class="feature-release">
-            <div class="feature-copy"><p>LISTENWCARTICUE ORIGINALS</p><small>THE NEW ALBUM</small><h1>Electric<br />Afterglow</h1><strong>Mira Vale</strong><div><button class="solid-play" data-play data-track-name="Electric Afterglow" data-track-artist="Mira Vale" type="button">▶ Play now</button><button class="circle" data-favorite data-track-name="Electric Afterglow" data-track-artist="Mira Vale" type="button" aria-label="เพิ่มเพลงนี้ลงรายการโปรด" aria-pressed="false">♡</button><button class="circle" type="button" data-menu data-track-name="Electric Afterglow" data-track-artist="Mira Vale" aria-label="ตัวเลือกเพิ่มเติม">•••</button></div></div>
+            <div class="feature-copy"><p>YOUNGOHM · SPOTIFY</p><small>เพลงแนะนำ</small><h1>Sunset In<br />Pattaya</h1><strong>YOUNGOHM</strong><iframe class="spotify-track-embed" title="Sunset In Pattaya โดย YOUNGOHM บน Spotify" src="https://open.spotify.com/embed/track/4Fx4IBQOq3WlgjGsamqcD0?utm_source=generator" width="352" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
             <div class="feature-art"><div class="glow"></div><div class="portrait"></div><b>MV</b></div>
           </section>
           <section class="tidal-shelf">
@@ -51,7 +57,7 @@
           </section>
           <section class="music-section view-section is-active" id="discover"><div class="tidal-heading"><div><p class="section-kicker">DISCOVER</p><h2>ค้นพบเพลงใหม่</h2></div><span id="discover-result-count" aria-live="polite">กำลังโหลดเพลง...</span></div><div class="tidal-cards" id="discover-cards"></div>
             <section class="spotify-discography" aria-labelledby="spotify-discography-title"><div class="tidal-heading"><div><p class="section-kicker">SPOTIFY</p><h2 id="spotify-discography-title">อัลบั้มและซิงเกิลของ YOUNGOHM</h2></div><a href="https://open.spotify.com/artist/0AvGycOEDZTaBFLCaiGd9S" target="_blank" rel="noopener noreferrer">เปิด Spotify ↗</a></div><p id="spotify-catalog-status" aria-live="polite">กำลังโหลดแคตตาล็อกจาก Spotify...</p><p id="spotify-player-status" aria-live="polite">กำลังเชื่อมต่อ Spotify Player...</p><div id="spotify-albums" class="spotify-albums"></div><div id="spotify-artist-fallback"><h3>ฟัง YOUNGOHM บน Spotify</h3><div class="spotify-embed-host" data-spotify-url="https://open.spotify.com/artist/0AvGycOEDZTaBFLCaiGd9S"></div></div></section><p class="discover-empty" id="discover-empty" hidden>ไม่พบเพลงที่ตรงกับคำค้นหา</p></section>
-          <section class="music-section grid-section view-section" id="library"><div><div class="tidal-heading"><div><p class="section-kicker">YOUR LIBRARY</p><h2>คลังเพลงของคุณ</h2></div><span>Recently played</span></div><div class="recent-list"><button class="recent-track" data-play data-track-name="Cold Lights" data-track-artist="Vera Bloom"><span>01</span><i class="sq one"></i><div><b>Cold Lights</b><small>Vera Bloom</small></div><em>3:43</em></button><button class="recent-track" data-play data-track-name="Open Water" data-track-artist="Oshima"><span>02</span><i class="sq two"></i><div><b>Open Water</b><small>Oshima</small></div><em>4:08</em></button><button class="recent-track" data-play data-track-name="Slow Motion" data-track-artist="NOA"><span>03</span><i class="sq three"></i><div><b>Slow Motion</b><small>NOA</small></div><em>2:57</em></button></div></div><aside class="focus-mix"><p>YOUR DAILY MIX</p><h2>Deep focus</h2><span>Atmospheric sound for uninterrupted concentration.</span><div class="vinyl">◌</div><button data-play data-track-name="Deep focus" data-track-artist="Ambient Mix" type="button">▶ Start listening</button></aside></section>
+          <section class="music-section grid-section view-section" id="library"><div><div class="tidal-heading"><div><p class="section-kicker">YOUR LIBRARY</p><h2>คลังเพลงของคุณ</h2></div><span>Spotify · YOUNGOHM</span></div><div class="recent-list spotify-library-list"><article class="spotify-library-track"><h3>เจิดจรัส · YOUNGOHM</h3><iframe class="spotify-track-embed" title="เจิดจรัส โดย YOUNGOHM บน Spotify" src="https://open.spotify.com/embed/track/3xyNRloMm2i6sNAlnnxLFA?utm_source=generator" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></article><article class="spotify-library-track"><h3>ใจฉันตามเธอไป · YOUNGOHM</h3><iframe class="spotify-track-embed" title="ใจฉันตามเธอไป โดย YOUNGOHM บน Spotify" src="https://open.spotify.com/embed/track/75mFrseCKSI6Nz8WANXq90?utm_source=generator" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></article><article class="spotify-library-track"><h3>นครดารา · YOUNGOHM</h3><iframe class="spotify-track-embed" title="นครดารา โดย YOUNGOHM บน Spotify" src="https://open.spotify.com/embed/track/2wyjOiDh07ISNq0oq69G4e?utm_source=generator" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></article></div></div><aside class="focus-mix"><p>YOUNGOHM · SPOTIFY</p><h2>ไฟเย็น</h2><span>ฟังเพลงเต็มผ่านตัวเล่น Spotify</span><div class="vinyl">◌</div><iframe class="spotify-track-embed focus-track-embed" title="ไฟเย็น โดย YOUNGOHM บน Spotify" src="https://open.spotify.com/embed/track/4ZU069vAYkr7soRzdzNdjF?utm_source=generator" width="100%" height="80" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></aside></section>
         </section>
       </main>
     </div>

@@ -17,7 +17,7 @@ const errorHandler = (err, req, res, next) => {
  return res.status(409).json({ message: "A value that must be unique already exists" });
  }
 
- res.status(500).json({ message: err.message || "Server error" });
+ res.status(err.status || 500).json({ message: err.message || "Server error" });
 };
 
 module.exports = { notFound, errorHandler };

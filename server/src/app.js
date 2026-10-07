@@ -3,6 +3,7 @@ const cors = require("cors");
 const trackRoutes = require("./routes/track.routes");
 const authRoutes = require("./routes/auth.routes");
 const blobRoutes = require("./routes/blob.routes");
+const spotifyRoutes = require("./routes/spotify.routes");
 const { notFound, errorHandler } = require("./middlewares/error.middleware");
 const app = express();
 
@@ -15,6 +16,7 @@ app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/tracks", trackRoutes);
 app.use("/api/blob", blobRoutes);
+app.use("/api/spotify", spotifyRoutes);
 
 // 3. Error handling — must be LAST
 app.use(notFound);

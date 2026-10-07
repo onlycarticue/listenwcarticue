@@ -23,6 +23,9 @@ const discoverSection = document.querySelector("#discover");
 const discoverResultCount = document.querySelector("#discover-result-count");
 const discoverEmpty = document.querySelector("#discover-empty");
 const discoverCards = document.querySelector("#discover-cards");
+const spotifyAlbums = document.querySelector("#spotify-albums");
+const spotifyCatalogStatus = document.querySelector("#spotify-catalog-status");
+const spotifyArtistFallback = document.querySelector("#spotify-artist-fallback");
 const youtubePlayerHost = document.querySelector("#youtube-player");
 const audioPlayer = document.querySelector("#audio-player");
 const SERVER_URL = TRACKS_API_URL.replace(/\/api\/?$/, "");
@@ -194,6 +197,38 @@ const loadDatabaseTracks = async () => {
       discoverEmpty.textContent = "ไม่สามารถเชื่อมต่อฐานข้อมูลเพลงได้";
     }
     setToast(error.message);
+  }
+};
+
+const loadSpotifyAlbums = async () => {
+  if (!spotifyAlbums) return;
+
+  try {
+    const response = await fetch(`${TRACKS_API_URL}/spotify/albums`);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "โหลดแคตตาล็อก Spotify ไม่สำเร็จ");
+
+    const albums = Array.isArray(data.albums) ? data.albums : [];
+    spotifyAlbums.innerHTML = albums.map((album) => {
+      const albumUrl = `https://open.spotify.com/embed/album/${encodeURIComponent(album.id)}?utm_source=generator`;
+      const spotifyLink = album.spotifyUrl || `https://open.spotify.com/album/${encodeURIComponent(album.id)}`;
+      const year = String(album.releaseDate || "").slice(0, 4);
+      const type = album.albumType === "single" ? "Single / EP" : "Album";
+      return `<article class="spotify-album-card"><div class="spotify-album-heading"><h3><a href="${escapeHtml(spotifyLink)}" target="_blank" rel="noopener noreferrer">${escapeHtml(album.name)} ↗</a></h3><p>${escapeHtml([year, type, `${Number(album.totalTracks) || 0} เพลง`].filter(Boolean).join(" · "))}</p></div><iframe title="${escapeHtml(album.name)} โดย YOUNGOHM บน Spotify" src="${albumUrl}" width="100%" height="352" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></article>`;
+    }).join("");
+
+    if (spotifyCatalogStatus) {
+      spotifyCatalogStatus.textContent = albums.length
+        ? `พบ ${albums.length} อัลบั้มและซิงเกิล · กดเล่นจากตัวเล่น Spotify ในแต่ละรายการ`
+        : "ไม่พบอัลบั้มใน Spotify สำหรับประเทศที่ตั้งค่าไว้";
+    }
+    if (spotifyArtistFallback && albums.length) spotifyArtistFallback.hidden = true;
+  } catch (error) {
+    if (spotifyCatalogStatus) {
+      spotifyCatalogStatus.textContent = error.message.includes("SPOTIFY_CLIENT_ID")
+        ? "ต้องตั้งค่า Spotify Client ID และ Client Secret ใน server/.env ก่อนจึงจะดึงรายการอัลบั้มได้"
+        : error.message;
+    }
   }
 };
 
@@ -787,6 +822,7 @@ attachAuthHandlers();
 attachNavigationHandlers();
 initPlayerStyles();
 loadDatabaseTracks();
+loadSpotifyAlbums();
 
 window.addEventListener("beforeunload", () => {
   stopCurrentAudio();
